@@ -9,7 +9,7 @@ from wmloc.utils import miou_image
 ap = argparse.ArgumentParser(); ap.add_argument('--base', required=True); ap.add_argument('--out', required=True); ap.add_argument('--thr', type=float, default=0.5)
 ap.add_argument('--delta', default='', help='per-method d0,d1,d2: also snap when softIoU(object) > softIoU(best rectangle) + d (9 = off)'); ap.add_argument('--valonly', action='store_true'); ap.add_argument('--empty', type=int, default=0, help='if the prediction has fewer than this many positive cells, bet on the SAM mask (area 1.2-50 %%) with the highest mean logit'); ap.add_argument('--amin', type=float, default=0.0, help='ignore SAM masks smaller than this fraction of the image'); ap.add_argument('--topk', type=int, default=0, help='keep only the k best-scored SAM masks'); ap.add_argument('--om', default='objmasks_all.npz'); ap.add_argument('--methods', default='012'); ap.add_argument('--kmax', type=int, default=4); a = ap.parse_args()
 DL = [float(x) for x in a.delta.split(',')] if a.delta else [9.0, 9.0, 9.0]
-OM = np.load(a.om); import os; SUSP = json.load(open('suspicious.json')) if os.environ.get('SUSP') else {}; AF = json.load(open('afull.json')); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+OM = np.load(a.om); import os; SUSP = json.load(open(os.environ.get('SUSPFILE', 'suspicious.json'))) if os.environ.get('SUSP') else {}; AF = json.load(open('afull.json')); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
 def sam128(key):
     if key not in OM.files or len(OM[key]) == 0: return np.zeros((0, 128, 128), bool)
     return np.unpackbits(OM[key]).reshape(-1, 128, 4, 128, 4).mean((2, 4)) >= 0.5
@@ -33,7 +33,7 @@ for split, tag in (('val', 'train'), ('test', 'test')):
         l = L[k]
         susp = f'{tag}_{name}' in SUSP
         if str(int(b['method'][k])) not in a.methods or (AF[f'{tag}_{name}'] >= 0.7 and not susp) or np.abs(l).sum() == 0 or np.abs(l).min() >= 7.9: continue   # full type / empty / decoded rectangle
-        base = l > 0; dl = 9.0 if susp else DL[int(b['method'][k])]
+        base = l > 0; dl = (float(os.environ.get('SUSPDELTA', 9.0)) if susp else DL[int(b['method'][k])])
         if a.empty and base.sum() < a.empty:
             sm = sam128(f'{tag}_{name}'); ar = sm.reshape(len(sm), -1).mean(1) if len(sm) else np.zeros(0); sm = sm[(ar >= 0.012) & (ar <= 0.5)]
             if len(sm):
@@ -44,7 +44,7 @@ for split, tag in (('val', 'train'), ('test', 'test')):
         if a.topk: sm = sm[:a.topk]
         if a.amin: sm = sm[sm.reshape(len(sm), -1).mean(1) >= a.amin]
         if len(sm) == 0: continue
-        p = 1 / (1 + np.exp(-l)); u, s = greedy(p, list(sm), a.kmax); ok = s >= (0.6 if susp else a.thr) and not rectlike(base)
+        p = 1 / (1 + np.exp(-l)); u, s = greedy(p, list(sm), a.kmax); ok = s >= (float(os.environ.get('SUSPTHR', 0.6)) if susp else a.thr) and not rectlike(base)
         if not ok and dl < 8:
             r, _ = maxrect(np.tanh(l / 2.0)); sr = 0.0
             if r is not None:

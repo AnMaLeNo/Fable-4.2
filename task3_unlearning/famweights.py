@@ -15,9 +15,10 @@ st = {}; [st.update(torch.load(f)) for f in sorted(glob.glob("stud_ext*.pt")) + 
 FAM["R"] = fam({k: v for k, v in torch.load("reset_1.pt").items() if k.startswith("reset")})
 if os.path.exists("prune.pt"):
     pr = torch.load("prune.pt"); FAM["H"] = fam({str(k): v for k, v in pr.items() if 0.35 <= k <= 0.75})
+if os.path.exists("studkreg_1.pt"): FAM["K"] = fam(torch.load("studkreg_1.pt"))
 if sys.argv[1] == "corr":
     ks = list(FAM); print("rank correlations between families:"); print("     " + " ".join(f"{k:>6s}" for k in ks))
     for a in ks: print(f"  {a}  " + " ".join(f"{sp(FAM[a][0], FAM[b][0]):6.2f}" for b in ks))
     raise SystemExit
-w = dict(zip("PISRH", [float(v) for v in sys.argv[2:]])); tot = sum(w.values())
+w = dict(zip("PISRHK", [float(v) for v in sys.argv[2:]])); tot = sum(w.values())
 torch.save({"loss": sum(w[k] * FAM[k][0] for k in w if w[k] > 0) / tot, "P": sum(w[k] * FAM[k][1] for k in w if w[k] > 0) / tot, "weights": w}, sys.argv[1]); print("saved", sys.argv[1], w)

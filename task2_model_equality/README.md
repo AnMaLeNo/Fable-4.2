@@ -6,7 +6,7 @@ change the identity. Score = 0.1 × MCC(family) + 0.9 × MCC(model). Hard budget
 team, 256 generated tokens per answer; nine practice endpoints `ref-01` … `ref-09` with known labels and no budget limit.
 
 **Public score: 1.00** (reached 21 Nov, 22:31; every later configuration listed below also scores 1.00 on the public
-pairs). The configuration we consider the most probable is `subs/k01_H7.csv`. <!-- TODO-FINAL: re-read the score at 11:30 -->
+pairs). The configuration we consider the most probable is `subs/k01_H7.csv`.
 
 ## Idea
 

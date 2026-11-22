@@ -1,23 +1,22 @@
 # Notes de l'orateur — Fable 4.2 (6 minutes, 9 diapositives)
 
-Mode d'emploi : le texte en retrait (« À dire ») se lit tel quel, à voix posée. Il fait 894 mots, soit environ
+Mode d'emploi : le texte en retrait (« À dire ») se lit tel quel, à voix posée. Il fait 892 mots, soit environ
 5 min 58 à 150 mots par minute : c'est juste. Si le chronomètre dérive, sauter la dernière phrase des diapositives 3, 5
 et 7 (on gagne environ 25 secondes). Les lignes « Pour comprendre » ne se lisent pas : elles expliquent les mots
 techniques au cas où le jury pose une question.
 
-**Chiffres à vérifier à 11h30** : les scores cités ont été lus à 09h40 dans les journaux de soumission
-(0,7965 · 1,00 · 0,4162) et le rang à 09h25 (4es sur 44). Chaque passage concerné est signalé par `TODO-FINAL`.
+**Chiffres** : scores du classement public lus à 11h20 (0,8013 · 1,00 · 0,4256), rang lu à 10h55 (4es sur 44, 0,94).
 
 | Diapositive | Durée | Temps cumulé |
 |---|---|---|
-| 1. Titre | 0 min 20 | 0 min 20 |
-| 2. Vue d'ensemble | 0 min 36 | 0 min 56 |
-| 3. Tâche 1, l'idée | 0 min 45 | 1 min 41 |
-| 4. Tâche 1, ce qui a fait la différence | 0 min 44 | 2 min 25 |
-| 5. Tâche 2, l'idée | 0 min 43 | 3 min 08 |
-| 6. Tâche 2, le résultat | 0 min 41 | 3 min 49 |
-| 7. Tâche 3, l'idée | 0 min 44 | 4 min 33 |
-| 8. Tâche 3, ce qui a fait la différence | 0 min 40 | 5 min 13 |
+| 1. Titre | 0 min 19 | 0 min 19 |
+| 2. Vue d'ensemble | 0 min 36 | 0 min 55 |
+| 3. Tâche 1, l'idée | 0 min 45 | 1 min 40 |
+| 4. Tâche 1, ce qui a fait la différence | 0 min 44 | 2 min 24 |
+| 5. Tâche 2, l'idée | 0 min 43 | 3 min 07 |
+| 6. Tâche 2, le résultat | 0 min 41 | 3 min 48 |
+| 7. Tâche 3, l'idée | 0 min 44 | 4 min 32 |
+| 8. Tâche 3, ce qui a fait la différence | 0 min 41 | 5 min 13 |
 | 9. Conclusion | 0 min 45 | 5 min 58 |
 
 ---
@@ -27,10 +26,9 @@ techniques au cas où le jury pose une question.
 À dire :
 
 > Bonjour, nous sommes l'équipe Fable 4.2. En vingt-quatre heures, nous avons traité les trois tâches. Nos scores
-> publics de ce matin : 0,80 sur la localisation de watermark, 1,00 sur l'égalité de modèles, 0,42 sur le
-> désapprentissage, soit la quatrième place sur quarante-quatre équipes. Voici comment, deux minutes par tâche.
+> publics : 0,80 sur la localisation de watermark, 1,00 sur l'égalité de modèles, 0,43 sur le désapprentissage,
+> soit la quatrième place sur quarante-quatre équipes. Voici comment, deux minutes par tâche.
 
-`TODO-FINAL` : les trois scores (0,7965 · 1,00 · 0,4162, lus à 09h40) et le rang (4es sur 44 à 09h25).
 
 ## 2. Vue d'ensemble (35 secondes)
 
@@ -68,16 +66,15 @@ Segment Anything (SAM) est un modèle public qui découpe les objets d'une image
 > de zéro à sept pour cent, puis recadrées, après la pose du watermark. Un modèle entraîné sur nos images
 > synthétiques propres ne voyait donc presque rien dans les vraies : 0,07. Avec le même zoom à l'entraînement, il
 > monte à 0,83, sans aucune image réelle étiquetée. Ensuite : les rectangles trouvés par décodage, le recalage sur les
-> objets, puis trois entraînements longs par méthode, pour arriver à 0,7965. Ces modèles n'utilisent aucune étiquette
+> objets, puis douze entraînements longs réunis, pour arriver à 0,80. Ces modèles n'utilisent aucune étiquette
 > devinée sur le jeu de test : cet essai a été écarté, le modèle y recopiait son professeur.
 
-`TODO-FINAL` : le score final (0,7965, lu à 09h37).
 
 Pour comprendre : 0,07 et 0,83 sont des scores (IoU moyen) mesurés chez nous sur de vraies images StegaStamp
 entièrement tatouées, par un modèle qui n'a vu aucune image réelle. Les scores du tableau sont ceux du classement public.
 « Étiquettes devinées » (pseudo-labels) : on fait étiqueter les images de test par un premier modèle, puis on entraîne
 un second modèle dessus. En entraînement long, ce second modèle recopie le premier au lieu d'apprendre : nous l'avons
-retiré, et les neuf modèles de la solution finale sont entraînés sans.
+retiré, et les douze modèles de la solution finale sont entraînés sans.
 
 ## 5. Tâche 2, l'idée (45 secondes)
 
@@ -106,7 +103,6 @@ donne le modèle trouvé pour chaque famille (Qwen 3B, Qwen 1,5B, Llama 1B) et s
 > le score public, déjà à 1, ne peut plus les départager. Nous avons dépensé entre 35 et 71 réponses sur les 100
 > autorisées par endpoint.
 
-`TODO-FINAL` : le score (1,00), le nombre d'endpoints non tranchés (4) et le budget (35 à 71).
 
 Pour comprendre : le score public n'est calculé que sur une petite partie des paires d'endpoints. Les quatre
 endpoints ouverts sont les numéros 01, 12, 21 et 19 : ils sont soit le modèle de base, soit une version à peine
@@ -133,19 +129,19 @@ générées par un modèle de diffusion ; elles servent à vérifier que le rest
 
 À dire :
 
-> Chaque source d'information indépendante a ajouté du score : 0,15 au départ, 0,23 avec la première famille, 0,29
-> avec deux, 0,35 avec trois, 0,36 avec quatre. Le serveur ne renvoyant qu'un nombre, nous n'avons changé qu'un
-> réglage par soumission : c'est le tableau de droite. Le gain de 0,37 à 0,40 vient d'un second agent chargé de
-> relire le premier. Son constat : une moyenne de modèles réentraînés n'est jamais tout à fait sûre d'elle ; il faut
-> donc plafonner aussi la confiance de notre modèle. Ce matin, un cinquième signal nous amène à 0,42, sur une seule
-> soumission pour l'instant.
+> Jusqu'à quatre familles, chaque source d'information a ajouté du score : 0,15 au départ, puis 0,23, 0,29, 0,35 et
+> 0,36. Le serveur ne renvoyant qu'un nombre, nous n'avons changé qu'un réglage par soumission : c'est le tableau de
+> droite. Le gain de 0,37 à 0,40 vient d'un second agent chargé de relire le premier : une moyenne de modèles
+> réentraînés n'est jamais tout à fait sûre d'elle, il faut donc plafonner aussi la confiance du nôtre. Dernière
+> surprise ce matin : la meilleure recette retire la première famille et ajoute un signal d'élagage. 0,43 : plus
+> de sources n'est pas toujours mieux.
 
-`TODO-FINAL` : le score final (0,4162, lu à 09h38 ; une seule soumission, le palier confirmé est 0,4013 à 0,4038).
 
 Pour comprendre : dans le tableau, « loss level » règle à quel point le modèle doit hésiter ou se tromper sur les
 images à oublier (le mieux : ×2,0) ; « images wrong » est la part d'images auxquelles on demande une mauvaise réponse
-(le mieux : 45 %). Le « cinquième signal » est le modèle d'origine dont on a supprimé une partie des poids (élagage) :
-ce qu'il oublie en premier ressemble à ce qu'il n'avait fait que mémoriser. Ce qui n'a pas aidé : un modèle statistique de la référence ajusté sur nos scores passés (il
+(le mieux : 45 %). Le « signal d'élagage » est le modèle d'origine dont on a supprimé une partie des poids :
+ce qu'il oublie en premier ressemble à ce qu'il n'avait fait que mémoriser. La « première famille » retirée est celle
+des classifieurs simples (sondes) ; la meilleure recette fait 0,4256, ses variantes voisines 0,4214 à 0,4223. Ce qui n'a pas aidé : un modèle statistique de la référence ajusté sur nos scores passés (il
 annonçait +12 %, le score a baissé de 0,3533 à 0,3010), les moyennes de poids, un ancrage plus fort.
 
 ## 9. Conclusion (45 secondes)
@@ -156,10 +152,9 @@ annonçait +12 %, le score a baissé de 0,3533 à 0,3010), les moyennes de poids
 > score ; mesurer avant de croire ; faire relire un agent par un autre. Ce qui n'a pas marché : le filtrage adapté
 > sur le watermark, pas meilleur que le hasard ; les pseudo-étiquettes du jeu de test, que le modèle finit par
 > recopier ; notre modèle de la référence, faux dès qu'on extrapole. Avec plus de temps : mieux choisir les contours
-> d'objets en tâche 1, trancher les quatre endpoints restants en tâche 2, ajouter des familles en tâche 3. Le code
-> et ces diapositives sont dans notre dépôt. Merci.
+> d'objets en tâche 1, trancher les quatre endpoints restants en tâche 2, tester chaque famille séparément en
+> tâche 3. Le code et ces diapositives sont dans notre dépôt. Merci.
 
-`TODO-FINAL` : les trois scores rappelés en bas de la diapositive.
 
 ---
 

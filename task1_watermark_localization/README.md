@@ -3,7 +3,7 @@
 For each 512×512 test image (one known watermark method among PixelSeal, TrustMark, StegaStamp, and the known embedded
 message), output a 128×128 binary mask of the watermarked area. Metric: per-image mIoU over the two classes, averaged.
 
-**Public score: 0.7965** (22 Nov, 09:37, submission `00_G_C16_pure.pt`; all-zeros baseline: 0.2553). <!-- TODO-FINAL: re-read the score at 11:30 -->
+**Public score: 0.8013** (22 Nov, 10:59, submission `00_F_C21p.pt`; all-zeros baseline: 0.2553).
 
 ## Idea
 
@@ -18,7 +18,7 @@ message), output a 128×128 binary mask of the watermarked area. Metric: per-ima
    it against the known message gives a sharp bit-accuracy peak. Rectangles found this way and verified (bit accuracy
    ≥ 0.85) replace the segmenter output.
 4. **Snap object-shaped predictions onto Segment Anything masks**, because the real "object" labels follow object contours.
-5. **Ensemble long, clean models.** The final ensemble is three long trainings per method, averaged, with test-time
+5. **Ensemble long, clean models.** The final ensemble is twelve long trainings (three to five per method), averaged, with test-time
    translation averaging. They are trained **without any pseudo-label of the test set**: the variant trained with
    pseudo-labels looked better locally but had memorised its teacher on the test images, and was discarded as contaminated.
 
@@ -46,11 +46,11 @@ here), the data unzipped in `release/`, and write predictions as logit maps in `
 | 7 | Training: BCE + two-sided Dice, 20 % real / 80 % synthetic samples, **zoom augmentation of image and label together** | `train_seg.py` → `main` (`--degrade zoom`, `--real_frac 0.2`); `degrade.py` → `zoom_pair` |
 | 8 | Inference on the control split and the test set; test-time augmentation = mean over 9 views translated by ±4 / 8 px, logits moved back before averaging | `predict.py` → `run`, `_shifted`, `_unshift` (`--tta`) |
 | 9 | "Zoom rescue": a model trained on 2× crops, applied on overlapping 2× tiles, only where the base model finds almost nothing | `train_seg.py --zoom 2`, `zoom_pred.py`, `zoom_eval.py` → `zoom_logits`, `merge_zoom.py --mode miss` |
-| 10 | Ensembling: mean of logits (final ensemble: 3 long models per method, equal weights); type-routed weights (full vs partial) were used in the earlier ensembles | `ens.py`; `route.py` |
+| 10 | Ensembling: mean of logits (final ensemble: 12 long models, equal weights within a method); type-routed weights (full vs partial) were used in the earlier ensembles | `ens.py`; `route.py` |
 | 11 | Decoder-verified rectangles. TrustMark (tolerant decoder): scan a grid of windows, then hill-climb the decode margin. StegaStamp (intolerant decoder): dense refinement around segmenter proposals. Accept only if bit accuracy ≥ 0.85 | `rect_search.py` → `Scorer`, `refine`; `tscan.py` → `windows`, `scan`, `detect`; `rect_pipe.py` → `proposals`, `dense_refine`; `rect_more.py` |
 | 12 | Calibration of decoded box vs label box (the label is 2 px inside the decoded box; TrustMark needs an anchored 4.5 % correction), construction of the three rectangle lists, application | `bias.py`; `make_rect_lists.py`; `apply_rects.py` (`--thr 0.85 --shrink 2`) |
 | 13 | SAM snapping of object-type predictions: an image that is not full-type and has no decoded rectangle takes the single SAM mask with the best soft IoU against sigmoid(logits), if that IoU is ≥ 0.5 (non-rectangular prediction) or exceeds the soft IoU of the best rectangle − 0.1 | `samsnap.py` → `greedy`, `rectlike`, the `--delta` rule |
-| 14 | Full-type images: threshold logit > 1 instead of > 0 (the ensemble under-predicts the restored holes) | `fullshift.py` |
+| 14 | Thresholds by type and method, applied as logit shifts: higher on full-type images (the ensemble under-predicts the restored holes), lower on partial PixelSeal images; full-type images whose prediction is mostly empty ("suspicious") are treated as partial | `fullshift.py` (`FULLSHIFT`, `PARTSHIFT`, `SUSP`); `suspicious.json` |
 | 15 | Threshold, write the submission, submit | `postproc.py --variant thr0`; `common.py` → `submit` |
 | — | Steps 10–15 in one command | `assemble.sh` |
 | — | Local evaluation: per-cell scores (method × type) with standard errors, paired comparisons | `cvlib.py`, `compare.py`, `eval_break.py` |
@@ -67,21 +67,26 @@ python sam_masks.py --model vit_h --ckpt models/sam/sam_vit_h_4b8939.pth --out o
        --pps 32 --iou 0.80 --stab 0.85 --kmax 64 --amax 0.9 --amin 0.001          # SAM ViT-H proposals
 python gen3.py --help ; python gen4.py --help                    # synthetic packs, gathered under synthAll/
 
-# nine long models, all WITHOUT pseudo-labels of the test set (one 4x A100 node)
+# twelve long models, all WITHOUT pseudo-labels of the test set (one 4x A100 node)
 C="--ram --synth synthAll --real_frac 0.2 --degrade zoom"
-python train_seg.py --out runs/L_tm     $C --arch ms:trustmark --methods 1 --bs 8 --lr 5e-4 --enc_lr 5e-5 --steps 20000 --seed 81
-python train_seg.py --out runs/Q_tm_102 $C --arch ms:trustmark --methods 1 --bs 8 --lr 5e-4 --enc_lr 5e-5 --steps 22000 --seed 102
-python train_seg.py --out runs/Q_tm_103 $C --arch ms:trustmark --methods 1 --bs 8 --lr 5e-4 --enc_lr 5e-5 --steps 22000 --seed 103
-python train_seg.py --out runs/L_ps     $C --arch ms:pixelseal:0.5,1 --methods 0 --bs 8 --lr 4e-4 --enc_lr 4e-5 --steps 16000 --amp bf16 --no_bench --eval_bs 2 --seed 81
-python train_seg.py --out runs/Q_ps_102 $C --arch ms:pixelseal:0.5,1 --methods 0 --bs 8 --lr 4e-4 --enc_lr 4e-5 --steps 18000 --amp bf16 --no_bench --eval_bs 2 --seed 102
-python train_seg.py --out runs/Q_ps_103 $C --arch ms:pixelseal:0.5,1 --methods 0 --bs 8 --lr 4e-4 --enc_lr 4e-5 --steps 18000 --amp bf16 --no_bench --eval_bs 2 --seed 103
+TM="--arch ms:trustmark --methods 1 --bs 8 --lr 5e-4 --enc_lr 5e-5"
+PS="--arch ms:pixelseal:0.5,1 --methods 0 --bs 8 --lr 4e-4 --enc_lr 4e-5 --amp bf16 --no_bench --eval_bs 2"
+python train_seg.py --out runs/L_tm     $C $TM --steps 20000 --seed 81
+python train_seg.py --out runs/Q_tm_102 $C $TM --steps 22000 --seed 102
+python train_seg.py --out runs/Q_tm_103 $C $TM --steps 22000 --seed 103
+python train_seg.py --out runs/Q_tm_104 $C $TM --steps 18000 --seed 104
+python train_seg.py --out runs/Q_tm_105 $C $TM --steps 16000 --seed 105
+python train_seg.py --out runs/L_ps     $C $PS --steps 16000 --seed 81
+python train_seg.py --out runs/Q_ps_102 $C $PS --steps 18000 --seed 102
+python train_seg.py --out runs/Q_ps_103 $C $PS --steps 18000 --seed 103
+python train_seg.py --out runs/Q_ps_104 $C $PS --steps 15000 --seed 104
 python train_seg.py --out runs/Q_ss_101 $C --arch unet --methods 2 --bs 12 --lr 6e-4 --steps 30000 --seed 101
 python train_seg.py --out runs/Q_ss_102 $C --arch unet --methods 2 --bs 12 --lr 6e-4 --steps 30000 --seed 102
 # SS_clean_loc: a third StegaStamp U-Net, same recipe, 26 000 steps (its exact command line was not kept as a script)
 
 # predictions with test-time augmentation (--m0 PixelSeal [--amp bf16], --m1 TrustMark, --m2 StegaStamp)
 python predict.py --m1 runs/L_tm/last.pt --out preds/L_tm_tta --bs 2 --tta
-python predict.py --m0 runs/L_ps/last.pt --out preds/L_ps_tta --bs 2 --amp bf16 --tta           # ... same for the other seven
+python predict.py --m0 runs/L_ps/last.pt --out preds/L_ps_tta --bs 2 --amp bf16 --tta           # ... same for the other ten
 
 # decoder-verified rectangles, then the three lists read by assemble.sh
 python tscan.py trustmark test
@@ -89,29 +94,34 @@ python rect_pipe.py --pred preds/<ensemble> --method stegastamp --split test
 METHOD=pixelseal python rect_more.py none preds/rectps_more_test.npy preds/<ensemble> ...
 python make_rect_lists.py
 
-# final assembly: ensemble -> threshold +1 on full-type images -> rectangles -> SAM snapping -> submission file
-FULLSHIFT=1.0 KMAX=1 DELTA=-0.1,-0.1,-0.1 bash assemble.sh C16_pure objmasks2_all.npz -- \
-    preds/L_tm_tta preds/Q_tm_102_tta preds/Q_tm_103_tta preds/L_ps_tta preds/Q_ps_102_tta preds/Q_ps_103_tta \
-    preds/Q_ss_101_tta preds/Q_ss_102_tta preds/SS_clean_loc_tta
-python common.py subq/pending/00_C16_pure.pt
+# final assembly: ensemble -> thresholds by type and method -> rectangles -> SAM snapping -> submission file
+SUSP=1 FULLSHIFT=2,1,0 PARTSHIFT=-1,0,0 KMAX=1 DELTA=-0.1,-0.1,-0.1 bash assemble.sh C21p objmasks2_all.npz -- $(cat members_c19.txt)
+python common.py subq/pending/00_C21p.pt
 ```
 
 What the best submission (score, file name and time on the first lines of this page) contains:
 
-- **Ensemble**: plain mean of the logits of three long models per method. TrustMark: `L_tm` (extractor ResNet-50 +
-  FPN on 3 scales, 20 000 steps), `Q_tm_102`, `Q_tm_103` (22 000 steps). PixelSeal: `L_ps` (extractor ConvNeXtV2,
-  2 scales, 16 000 steps), `Q_ps_102`, `Q_ps_103` (18 000 steps). StegaStamp: `Q_ss_101`, `Q_ss_102` (U-Net with
-  high-pass channels, 30 000 steps), `SS_clean_loc` (26 000 steps). All trained on synthetic composites + 20 % real
-  images with the zoom augmentation, **without pseudo-labels of the test set**, and predicted with the 9-view TTA.
-- **Thresholds**: logit > 0; on full-type images logit > 1. No rectangle post-processing.
-- **Decoded rectangles** on the test set: 71 TrustMark (window scan, refined bit accuracy ≥ 0.85, corrected box),
-  75 StegaStamp (segmenter proposals refined against the decoder, ≥ 0.85), 51 PixelSeal (≥ 0.68).
+- **Ensemble**: plain mean of the logits of twelve long models (`members_c19.txt`). TrustMark (5): `L_tm` (extractor
+  ResNet-50 + FPN on 3 scales, 20 000 steps), `Q_tm_102`, `Q_tm_103` (22 000), `Q_tm_104` (18 000), `Q_tm_105` (16 000).
+  PixelSeal (4): `L_ps` (extractor ConvNeXtV2, 2 scales, 16 000 steps), `Q_ps_102`, `Q_ps_103` (18 000), `Q_ps_104`
+  (15 000). StegaStamp (3): `Q_ss_101`, `Q_ss_102` (U-Net with high-pass channels, 30 000 steps), `SS_clean_loc`
+  (26 000). All trained on synthetic composites + 20 % real images with the zoom augmentation, **without
+  pseudo-labels of the test set**, and predicted with the 9-view TTA.
+- **Thresholds**: logit > 0 by default. On full-type images: logit > 2 (PixelSeal), > 1 (TrustMark), > 0 (StegaStamp).
+  On PixelSeal images that are not full-type: logit > −1. No rectangle post-processing.
+- **"Suspicious" images** (`suspicious.json`, 60 images): classified full-type by the decoder but predicted
+  watermarked on less than 60 % of the cells; they are treated as partial (no threshold shift, SAM snapping if the
+  soft IoU is ≥ 0.6).
+- **Decoded rectangles** on the test set: 71 TrustMark from the window scan (refined bit accuracy ≥ 0.85, corrected
+  box) + 2 from segmenter proposals, 76 StegaStamp (segmenter proposals refined against the decoder, ≥ 0.85),
+  57 PixelSeal (≥ 0.68).
 - **SAM snapping** with SAM ViT-H proposals (automatic mode, 32 points per side, at most 64 masks per image).
 
-Steps done by hand: the three rectangle lists were first built with inline code; `make_rect_lists.py` is its
-transcription, written afterwards and **not re-run**. The earlier short-model ensemble (`C2s`, built by a sequence of
-`ens.py` / `route.py` / `merge_zoom.py` commands) is no longer in the best submission; it only served as a source of
-proposals for the StegaStamp rectangles.
+Steps done by hand: `suspicious.json` was written with inline code, without a script (the file is included); the
+three rectangle lists were first built with inline code, and `make_rect_lists.py` is its transcription, written
+afterwards and **not re-run**. The earlier short-model ensemble (`C2s`, built by a sequence of `ens.py` / `route.py` /
+`merge_zoom.py` commands) is no longer in the best submission; it only served as a source of proposals for the
+StegaStamp rectangles.
 
 ## Results (public split, 306 of the 1 020 test images)
 
@@ -134,9 +144,12 @@ proposals for the StegaStamp rectangles.
 | 08:51 | C14 | 0.7891 | + test-time augmentation (9 translated views) |
 | 09:01 | C15 | 0.7916 | + two more long PixelSeal models |
 | 09:17 | C16 | 0.7945 | + two more long TrustMark models |
-| 09:37 | C16_pure | **0.7965** | old short-model ensemble removed: three long models per method only |
+| 09:37 | C16_pure | 0.7965 | old short-model ensemble removed: three long models per method only |
+| 09:48 | C16_susp | 0.7968 | "suspicious" full-type images treated as partial |
+| 09:58 | C18s | 0.8001 | + a fourth long PixelSeal model and 9 more decoded rectangles |
+| 10:39 | C19_fsm | 0.8006 | threshold on full-type images set per method (two more long TrustMark models: neutral, 0.7999) |
+| 10:59 | C21p | **0.8013** | threshold −1 on partial PixelSeal images |
 
-<!-- TODO-FINAL: at 11:30, if the best public score changed: update the score line at the top (score, file name, time) and add one row to this table -->
 
 Measurements behind the main choices (local, on real training images the model never saw):
 

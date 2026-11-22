@@ -4,7 +4,7 @@
     python build_slides.py
 
 All the numbers shown on the slides are in the block "NUMBERS" below. Before publication: update the lines marked
-TODO-FINAL, set FINAL = True (this removes the visible "TODO-FINAL" reminders from the slides) and run the script again.
+changed, then run the script again.
 """
 import os
 from pptx import Presentation
@@ -19,13 +19,13 @@ from reportlab.pdfbase.ttfonts import TTFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ----------------------------------------------------------------------------------------------------------- NUMBERS
-FINAL = False                                   # TODO-FINAL: set to True once the numbers below are final
-AS_OF = "Public leaderboard, 22 Nov, 09:40"     # TODO-FINAL: time of the final reading
-T1_SCORE = "0.7965"                             # TODO-FINAL: task 1 public mIoU
-T2_SCORE = "1.00"                               # TODO-FINAL: task 2 public score
-T3_SCORE = "0.4162"                             # TODO-FINAL: task 3 public score
-RANK = "Overall: 4th of 44 teams, normalised score 0.92 (09:25)"   # TODO-FINAL: overall public ranking ("" hides the line)
-T1_LADDER = [                                   # (step, public mIoU, gain)   TODO-FINAL: add or replace the last row
+FINAL = True                                    # False adds a "refresh before noon" reminder to the footers
+AS_OF = "Public leaderboard, 22 Nov, 11:20"
+T1_SCORE = "0.8013"                             # task 1 public mIoU
+T2_SCORE = "1.00"                               # task 2 public score
+T3_SCORE = "0.4256"                             # task 3 public score
+RANK = "Overall: 4th of 44 teams, normalised score 0.94 (10:55)"   # overall public ranking ("" hides the line)
+T1_LADDER = [                                   # (step, public mIoU, gain)
     ("All-zeros baseline", "0.2553", ""),
     ("Segmenters on synthetic composites", "0.6608", "+0.406"),
     ("Per-method ensembles, zoom rescue", "0.7171", "+0.056"),
@@ -35,7 +35,7 @@ T1_LADDER = [                                   # (step, public mIoU, gain)   TO
     ("Long TrustMark and PixelSeal models", "0.7614", "+0.014"),
     ("SAM ViT-H proposals, threshold on full frames", "0.7705", "+0.009"),
     ("Long StegaStamp models, test-time augmentation", "0.7891", "+0.019"),
-    ("Three long models per method, nothing else", "0.7965", "+0.007"),
+    ("12 long models only, thresholds per method", "0.8013", "+0.012"),
 ]
 T2_LADDER = [                                   # (step, public score)
     ("Families only", 0.10),
@@ -44,7 +44,7 @@ T2_LADDER = [                                   # (step, public score)
     ("Tests against local replicas", 0.85),
     ("One more endpoint, by submission test", 1.00),
 ]
-T3_LADDER = [                                   # (step, public score)   TODO-FINAL: add or replace the last row
+T3_LADDER = [                                   # (step, public score)
     ("Targets from augmentations", 0.1543),
     ("Out-of-fold probes (P)", 0.2328),
     ("+ img2img variations (I)", 0.2907),
@@ -52,7 +52,7 @@ T3_LADDER = [                                   # (step, public score)   TODO-FI
     ("+ reset-and-redistil replicas (R)", 0.3641),
     ("Near-identity training views", 0.3724),
     ("Confidence cap on easy images", 0.4038),
-    ("+ pruning signal (one run so far)", 0.4162),
+    ("Pruning signal in, probes out", 0.4256),
 ]
 # ------------------------------------------------------------------------------------------------------------- STYLE
 W, H = 13.333, 7.5
@@ -175,7 +175,7 @@ class Deck:
         self.text(0.6, H - 0.48, 5.0, 0.24, "Fable 4.2 · European AI Championship, Paris 2026", 11, False, col)
         self.text(W - 1.6, H - 0.48, 1.0, 0.24, str(self.n), 11, False, col, "r")
         if note:
-            if not FINAL: note += "  ·  TODO-FINAL: refresh before noon"
+            if not FINAL: note += "  ·  draft: refresh before noon"
             self.text(5.6, H - 0.48, W - 7.3, 0.24, note, 11, not FINAL, (GOLD if self.dark else C3) if not FINAL else col, "r")
 
     def table(self, x, y, colw, rows, row_h=0.46, size=14, head=True, aligns=None, hi=None, head_fill=INK):
@@ -312,7 +312,7 @@ d.footer(AS_OF)
 d.slide("Task 3 · Predict the model that never saw the image")
 d.badge(12.1, 0.45, 3)
 d.text(0.6, 1.3, 12.0, 0.4, "Forget 3 500 unlabeled images and match a retrained model image by image. The server returns one number.", 14, False, MUTED)
-d.text(0.6, 1.85, 4.3, 0.3, "FOUR FAMILIES OF PROXY MODELS", 12, True, MUTED)
+d.text(0.6, 1.85, 4.3, 0.3, "FAMILIES OF PROXY MODELS", 12, True, MUTED)
 fams = [("P", "Probes on 5 frozen backbones, out-of-fold"), ("I", "Original model on img2img variations of the image"),
         ("S", "Students distilled on generated images only"), ("R", "Same ViT, last blocks reset and re-distilled")]
 for i, (k, lab) in enumerate(fams):
@@ -334,11 +334,11 @@ d.items(9.65, 3.65, 2.85, ["onto the targets, on the 3 500 images", "onto its ow
 d.footer()
 
 # ------------------------------------------------------------------------------------------- 8. task 3 difference
-d.slide("Task 3 · Each independent proxy family added score")
+d.slide("Task 3 · Choosing the proxy families made the score")
 d.badge(12.1, 0.45, 3)
 d.text(0.6, 1.35, 7.0, 0.3, "PUBLIC SCORE BY SUBMISSION", 12, True, MUTED)
 d.bars(0.6, 1.75, 7.2, T3_LADDER, C3, label_w=3.9, row_h=0.5, size=13.5, vmax=0.45, fmt="{:.4f}")
-d.text(0.6, 5.9, 7.2, 0.7, "The cap came from a second agent reviewing the first: an average of retrained models is never fully sure, so cap our confidence too.", 13, False, TEXT)
+d.text(0.6, 5.9, 7.2, 0.7, "The cap came from a second agent reviewing the first. The best recipe then drops the probes and adds a pruning signal: more families is not always better.", 13, False, TEXT)
 d.text(8.2, 1.35, 4.5, 0.3, "ONE CHANGE PER SUBMISSION", 12, True, MUTED)
 d.table(8.2, 1.75, [2.55, 1.98], [("Setting tested", "Public score"), ("Loss level ×1.5", "0.2907"), ("Loss level ×2.0", "0.3122"), ("Loss level ×2.5", "0.2755"),
         ("35 % of images wrong", "0.2862"), ("45 % of images wrong", "0.3142"), ("55 % of images wrong", "0.3022")], row_h=0.44, size=13, aligns=["l", "r"], head_fill=C3)
@@ -355,7 +355,7 @@ colsc = [("WHAT WORKED", GOLD, ["Use what is known: the message (task 1), public
                                  "Fitting a model of the reference to leaderboard scores: wrong when extrapolated"]),
          ("WITH MORE TIME", GOLD, ["Task 1: a learned selector for SAM masks; small holes in PixelSeal and TrustMark frames",
                                    "Task 2: directed tests for the 4 open endpoints",
-                                   "Task 3: more independent proxy families"])]
+                                   "Task 3: test each proxy family on its own, with more seeds"])]
 for i, (head, col, lines) in enumerate(colsc):
     x = 0.6 + i * 4.11
     d.rect(x, 1.45, 3.9, 4.45, "262A3B", 0.05)
