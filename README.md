@@ -101,5 +101,5 @@ repository; the scripts read `SERVER_URL` and `API_KEY` from the environment.
 
 ## Slides
 
-[slides/Fable4.2_presentation.pptx](slides/Fable4.2_presentation.pptx) · [slides/Fable4.2_presentation.pdf](slides/Fable4.2_presentation.pdf) · built by [slides/build_presentation.py](slides/build_presentation.py)
+[slides/Fable4.2_presentation.pptx](slides/Fable4.2_presentation.pptx) · [slides/Fable4.2_presentation.pdf](slides/Fable4.2_presentation.pdf) · [animated HTML version](slides/Fable4.2_presentation.html) · built by [slides/build_presentation.py](slides/build_presentation.py)
 (6 minutes, about 2 minutes per task).

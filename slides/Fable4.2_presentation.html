@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fable 4.2 · European AI Championship Paris 2026</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#060B14;overflow:hidden;font-family:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1F2937}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;overflow:hidden;background:#F7F8FA;box-shadow:0 20px 80px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:46px 64px 0 68px;opacity:0;visibility:hidden;transform:translateX(80px) scale(.98);
+ transition:opacity .55s ease,transform .7s cubic-bezier(.2,.8,.2,1),visibility 0s .7s;background:#F7F8FA}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s ease,transform .7s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.slide.before{transform:translateX(-80px) scale(.98)}
+.bar{position:absolute;left:0;top:0;bottom:0;width:21px;background:#14B8A6;transform:scaleY(0);transform-origin:top;transition:transform .8s cubic-bezier(.2,.8,.2,1) .1s}
+.active .bar{transform:scaleY(1)}
+.a{opacity:0}
+.active .a{animation:up .65s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--d)*110ms + 200ms)}
+.active .chev.a{animation-name:slidein}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes slidein{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+.kicker{font-size:14px;font-weight:700;letter-spacing:.08em;color:#14B8A6;text-transform:uppercase}
+h1{font-size:46px;line-height:1.15;color:#0F1B2D;margin-top:8px;font-weight:800;letter-spacing:-.01em}
+.goal{font-size:23px;color:#6B7280;margin-top:26px}
+.hard{margin-top:22px;background:#E6F7F5;border-radius:12px;padding:16px 22px;font-size:20px}
+.hard b,.note b{color:#0F1B2D;margin-right:6px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:28px}
+.cards.mt{margin-top:40px}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:24px 24px 26px 28px;position:relative;box-shadow:0 2px 10px rgba(15,27,45,.06);min-height:200px}
+.cards.tall .card{min-height:300px}.cards.tall3 .card{min-height:370px}
+.card:before{content:"";position:absolute;left:0;top:22px;width:6px;height:40px;background:#14B8A6;border-radius:0 4px 4px 0}
+.card h3{font-size:24px;color:#0F1B2D;margin-bottom:12px;line-height:1.2}
+.card p{font-size:20px;line-height:1.35;margin-bottom:8px}
+.darkcard{background:#0F1B2D;border-color:#0F1B2D}.darkcard:before{display:none}.darkcard h3{color:#fff}
+.sc{display:flex;align-items:center;gap:18px;margin-top:26px}.sc b{font-size:46px;color:#14B8A6;width:110px}.sc span{color:#fff;font-size:19px}
+.ladder{display:flex;align-items:stretch;gap:0;margin-top:40px}
+.step{flex:1;background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:26px 12px 22px;text-align:center;box-shadow:0 2px 10px rgba(15,27,45,.06)}
+.step .v{font-size:54px;font-weight:800;color:#0F1B2D;font-variant-numeric:tabular-nums}
+.step .l{font-size:18px;color:#6B7280;margin-top:6px;line-height:1.25}
+.step.last{background:#0F1B2D;border-color:#0F1B2D}.step.last .v{color:#14B8A6}.step.last .l{color:#fff}
+.active .step.last{animation:up .65s cubic-bezier(.2,.8,.2,1) both,pop .6s ease 1 both;animation-delay:calc(var(--d)*110ms + 200ms),calc(var(--d)*110ms + 900ms)}
+.ladder.small .step .v{font-size:37px}.ladder.small .step .l{font-size:14.5px}.ladder.small .step{padding:24px 6px 18px}
+.chev{display:flex;align-items:center;justify-content:center;width:32px;font-size:30px;font-weight:800;color:#14B8A6;flex:none}
+.ladder.small .chev{width:22px;font-size:24px}
+.note{margin-top:30px;border-left:6px solid #F59E0B;padding:12px 20px;font-size:21px}
+.note.acc{border-color:#14B8A6}
+.flow{display:flex;align-items:stretch;margin-top:40px}
+.box{flex:1;background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:28px 26px;box-shadow:0 2px 10px rgba(15,27,45,.06)}
+.box h3{font-size:26px;color:#0F1B2D;margin-bottom:10px}.box p{font-size:20px;line-height:1.35}
+.box.dark{background:#0F1B2D;border-color:#0F1B2D}.box.dark h3,.box.dark p{color:#fff}
+.label{font-size:14px;font-weight:700;letter-spacing:.08em;color:#14B8A6;margin-top:40px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:14px}
+.rule{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:26px 22px;font-size:22px;font-weight:700;color:#0F1B2D;display:flex;align-items:center;gap:16px;box-shadow:0 2px 10px rgba(15,27,45,.06)}
+.rule span{font-size:42px;color:#14B8A6}
+.split{display:flex;gap:34px;margin-top:34px;align-items:stretch}
+.hero{flex:none;width:480px;background:#0F1B2D;border-radius:16px;padding:30px 20px;text-align:center}
+.heroV{font-size:70px;font-weight:800;color:#14B8A6;font-variant-numeric:tabular-nums}.heroV i{font-style:normal;opacity:.8}
+.heroL{color:#fff;font-size:18px;line-height:1.4;margin-top:6px}
+.txt p{font-size:25px;line-height:1.35;margin-bottom:14px}.txt{display:flex;flex-direction:column;justify-content:center}
+.txt.wide{margin-top:36px}.txt.wide p{font-size:23px;margin-bottom:12px}
+.slide[data-n="4"] .ladder{margin-top:26px}.slide[data-n="4"] .step{padding:16px 10px}.slide[data-n="4"] .step .v{font-size:44px}
+.slide[data-n="4"] .note{margin-top:22px}
+.fam{display:flex;align-items:center;gap:18px;margin-top:30px}.fam .label{margin-top:0;margin-right:10px}
+.pill{background:#0F1B2D;color:#fff;font-weight:700;font-size:20px;padding:13px 38px;border-radius:999px}
+.pipe{display:flex;align-items:stretch;margin-top:28px}
+.fams{flex:none;width:520px;display:flex;flex-direction:column;gap:12px}
+.famrow{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:18px 18px;font-size:19px;display:flex;gap:14px;align-items:center;box-shadow:0 2px 8px rgba(15,27,45,.05)}
+.famrow span{color:#14B8A6;font-weight:800;font-size:20px;width:18px;text-align:center}
+.tallbox{display:flex;flex-direction:column;justify-content:center;text-align:center}
+.thanks{font-size:42px;font-weight:800;color:#0F1B2D;margin-top:30px}
+.foot{position:absolute;left:68px;right:64px;bottom:22px;display:flex;justify-content:space-between;font-size:12px;color:#9CA3AF}
+.title{background:#0F1B2D;padding:70px 86px}
+.title .big{font-size:124px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-top:18px;line-height:1.05}
+.title .tag{font-size:34px;color:#CBD5E1;margin-top:14px}
+.scores{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:60px}
+.score{background:#1A2A44;border-radius:16px;padding:32px 10px 34px;text-align:center}
+.score .v{font-size:84px;font-weight:800;color:#14B8A6;font-variant-numeric:tabular-nums;line-height:1.1}
+.score .l{font-size:22px;color:#fff;margin-top:6px}
+.title .sub{font-size:15px;color:#94A3B8;margin-top:30px}
+#prog{position:absolute;left:0;bottom:0;height:4px;background:#14B8A6;transition:width .5s ease;z-index:5}
+#hint{position:fixed;right:14px;bottom:10px;color:#64748B;font-size:12px;transition:opacity .6s;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.slide,.a,.bar{transition:none!important;animation:none!important;opacity:1}.slide:not(.active){opacity:0}.bar{transform:none}}
+@media print{html,body{overflow:visible;background:#fff}#stage{position:static;transform:none!important;box-shadow:none;height:auto;overflow:visible}
+ .slide{position:relative;height:720px;opacity:1;visibility:visible;transform:none;page-break-after:always}.a{opacity:1;animation:none!important}.bar{transform:none}#prog,#hint{display:none}@page{size:1280px 720px;margin:0}}
+</style></head><body>
+<div id="stage"><section class="slide title" data-n="1"><div class="bar"></div>
+<div class="kicker a" style="--d:0">EUROPEAN AI CHAMPIONSHIP · PARIS 2026</div>
+<div class="big a" style="--d:1">fable 4.2</div>
+<div class="tag a" style="--d:2">Use what is already known before training anything</div>
+<div class="scores">
+<div class="score a" style="--d:4"><div class="v" data-count="0.80">0.80</div><div class="l">Watermark localisation</div></div>
+<div class="score a" style="--d:5"><div class="v" data-count="1.00">1.00</div><div class="l">Model equality</div></div>
+<div class="score a" style="--d:6"><div class="v" data-count="0.43">0.43</div><div class="l">Unlearning</div></div>
+</div>
+<div class="sub a" style="--d:8">Public leaderboard scores (about 30% of the evaluation data)</div></section><section class="slide " data-n="2"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Method</div><h1 class="a" style="--d:1">A small team of agents that we directed</h1>
+<div class="flow">
+<div class="box dark a" style="--d:2"><h3>Human team</h3><p>Strategy, budget rules, final decisions</p></div><div class="chev a" style="--d:3">›</div>
+<div class="box a" style="--d:3"><h3>Orchestrator agent</h3><p>Shares the GPUs between tasks</p></div><div class="chev a" style="--d:4">›</div>
+<div class="box a" style="--d:4"><h3>One agent per task</h3><p>Does the work, keeps a journal. Reviewer agents check it.</p></div></div>
+<div class="label a" style="--d:5">THREE RULES</div>
+<div class="rules">
+<div class="rule a" style="--d:6"><span>1</span>Measure before believing</div>
+<div class="rule a" style="--d:7"><span>2</span>One change per submission</div>
+<div class="rule a" style="--d:8"><span>3</span>One agent reviews another</div></div><div class="note acc a" style="--d:9"><b>Compute:</b> one node of 4× A100 and one local RTX 3080</div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>2 / 9</span></div></section><section class="slide " data-n="3"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 1 · Watermark localisation</div><h1 class="a" style="--d:1">One tool per edit type</h1>
+<p class="goal a" style="--d:2">Edited image + watermark method + hidden message: draw the area still watermarked.</p><div class="hard a" style="--d:3"><b>Why it is hard:</b> three kinds of edits in one dataset. One model cannot handle them all.</div><div class="cards tall"><div class="card a" style="--d:4"><h3>Full image with a hole</h3><p>Segmentation network trained on synthetic images made with the official tools</p></div><div class="card a" style="--d:5"><h3>Only a rectangle is watermarked</h3><p>Decode crops. Known message recovered with ≥ 85% of the bits = exact rectangle</p></div><div class="card a" style="--d:6"><h3>Watermark left on an object</h3><p>Snap our prediction to Segment Anything contours</p></div></div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>3 / 9</span></div></section><section class="slide " data-n="4"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 1 · Watermark localisation</div><h1 class="a" style="--d:1">The zoom discovery</h1>
+<div class="split"><div class="hero a" style="--d:2"><div class="heroV"><span data-count="0.07">0.07</span> <i>›</i> <span data-count="0.83" data-delay="700">0.83</span></div>
+<div class="heroL">on full-image edits (StegaStamp)<br>Same model, zoom added in training</div></div>
+<div class="txt"><p class="a" style="--d:3">Real images were enlarged by up to 7% and cropped after the watermark was embedded.</p>
+<p class="a" style="--d:4">A model trained on clean synthetic images saw almost nothing in real ones.</p></div></div><div class="ladder "><div class="step  a" style="--d:5"><div class="v" data-count="0.26">0.26</div><div class="l">Baseline</div></div><div class="chev a" style="--d:5">›</div><div class="step  a" style="--d:6"><div class="v" data-count="0.66">0.66</div><div class="l">Synthetic segmenters</div></div><div class="chev a" style="--d:6">›</div><div class="step last a" style="--d:7"><div class="v" data-count="0.80">0.80</div><div class="l">Zoom, decoded rectangles, object contours</div></div></div><div class="note warm a" style="--d:9"><b>Did not work:</b> pseudo-labels on the test set. The model just copied its teacher.</div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>4 / 9</span></div></section><section class="slide " data-n="5"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 2 · Model equality</div><h1 class="a" style="--d:1">Rebuild the model, don&#x27;t compare answers</h1>
+<p class="goal a" style="--d:2">33 language models behind APIs, 100 answers each: which ones are the same model?</p><div class="hard a" style="--d:3"><b>Why it is hard:</b> a quantised model looks closer to the original than the same model with a persona.</div><div class="cards "><div class="card a" style="--d:4"><h3>1  Questionnaire</h3><p>Splits the endpoints into three families</p></div><div class="card a" style="--d:5"><h3>2  Find the checkpoint</h3><p>Search public models for the one that makes the observed answers most likely</p></div><div class="card a" style="--d:6"><h3>3  Exact tests on a local replica</h3><p>Temperature, fit question by question, quantisation, watermark</p></div></div><div class="fam"><span class="label a" style="--d:7">FAMILIES FOUND</span>
+<span class="pill a" style="--d:8">Qwen2.5-3B</span><span class="pill a" style="--d:9">Qwen2.5-1.5B</span><span class="pill a" style="--d:10">Llama-3.2-1B</span></div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>5 / 9</span></div></section><section class="slide " data-n="6"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 2 · Model equality</div><h1 class="a" style="--d:1">Every justified rule raised the score</h1>
+<div class="ladder "><div class="step  a" style="--d:2"><div class="v" data-count="0.10">0.10</div><div class="l">Families only</div></div><div class="chev a" style="--d:2">›</div><div class="step  a" style="--d:3"><div class="v" data-count="0.75">0.75</div><div class="l">Merge disguises identified with certainty</div></div><div class="chev a" style="--d:3">›</div><div class="step  a" style="--d:4"><div class="v" data-count="0.85">0.85</div><div class="l">Replica tests</div></div><div class="chev a" style="--d:4">›</div><div class="step last a" style="--d:5"><div class="v" data-count="1.00">1.00</div><div class="l">Public leaderboard</div></div></div><div class="cards mt"><div class="card a" style="--d:7"><h3>Validated first</h3><p>On the 9 practice endpoints, where the answer is known</p></div><div class="card a" style="--d:8"><h3>Still open</h3><p>4 endpoints of 33: our tests cannot decide</p></div><div class="card a" style="--d:9"><h3>Budget used</h3><p>35 to 71 of the 100 answers per endpoint</p></div></div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>6 / 9</span></div></section><section class="slide " data-n="7"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 3 · Unlearning</div><h1 class="a" style="--d:1">Ask the model that never saw the image</h1>
+<p class="goal a" style="--d:2">A vision model must forget 3,500 images and behave like a model retrained without them.</p><div class="hard a" style="--d:3"><b>Why it is hard:</b> predictions are compared image by image; the server returns one number.</div><div class="pipe"><div class="fams"><div class="famrow a" style="--d:4"><span>1</span>Simple classifiers on pretrained backbones</div><div class="famrow a" style="--d:5"><span>2</span>Original model on regenerated variations of the image</div><div class="famrow a" style="--d:6"><span>3</span>Students trained only on generated images</div><div class="famrow a" style="--d:7"><span>4</span>Same network, last layers reset</div></div><div class="chev a" style="--d:8">›</div><div class="box tallbox a" style="--d:8"><h3>Consensus</h3><p>One target per image</p></div>
+<div class="chev a" style="--d:9">›</div><div class="box dark tallbox a" style="--d:9"><h3>Fine-tune</h3><p>Towards these targets, unchanged elsewhere</p></div></div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>7 / 9</span></div></section><section class="slide " data-n="8"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Task 3 · Unlearning</div><h1 class="a" style="--d:1">Choose the sources, then cap the confidence</h1>
+<div class="ladder small"><div class="step  a" style="--d:2"><div class="v" data-count="0.15">0.15</div><div class="l">Start</div></div><div class="chev a" style="--d:2">›</div><div class="step  a" style="--d:3"><div class="v" data-count="0.23">0.23</div><div class="l">1 family</div></div><div class="chev a" style="--d:3">›</div><div class="step  a" style="--d:4"><div class="v" data-count="0.29">0.29</div><div class="l">2 families</div></div><div class="chev a" style="--d:4">›</div><div class="step  a" style="--d:5"><div class="v" data-count="0.35">0.35</div><div class="l">3 families</div></div><div class="chev a" style="--d:5">›</div><div class="step  a" style="--d:6"><div class="v" data-count="0.36">0.36</div><div class="l">4 families</div></div><div class="chev a" style="--d:6">›</div><div class="step  a" style="--d:7"><div class="v" data-count="0.40">0.40</div><div class="l">Confidence cap</div></div><div class="chev a" style="--d:7">›</div><div class="step last a" style="--d:8"><div class="v" data-count="0.43">0.43</div><div class="l">5th signal, one source dropped</div></div></div><div class="txt wide"><p class="a" style="--d:10">One setting changed per submission, because the server returns a single number.</p>
+<p class="a" style="--d:11">An average of retrained models is never fully confident, so we cap our model's confidence too.</p></div><div class="note warm a" style="--d:12"><b>Did not work:</b> a model of the reference fitted to our past scores. Predicted +12%, score went down.</div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>8 / 9</span></div></section><section class="slide " data-n="9"><div class="bar"></div>
+<div class="kicker a" style="--d:0">Conclusion</div><h1 class="a" style="--d:1">What we take away</h1>
+<div class="cards tall3">
+<div class="card a" style="--d:2"><h3>Worked</h3><p>Use what is known: the hidden message, public checkpoints, the scoring formula</p><p>Measure before believing</p><p>One agent reviews another</p></div>
+<div class="card a" style="--d:3"><h3>With more time</h3><p>Task 1: better object contours</p><p>Task 2: the 4 open endpoints</p><p>Task 3: more proxy families</p></div>
+<div class="card darkcard a" style="--d:4"><h3>Public scores</h3>
+<div class="sc"><b data-count="0.80">0.80</b><span>Watermark localisation</span></div>
+<div class="sc"><b data-count="1.00">1.00</b><span>Model equality</span></div>
+<div class="sc"><b data-count="0.43">0.43</b><span>Unlearning</span></div></div></div>
+<div class="thanks a" style="--d:7">Thank you</div><div class="foot"><span>fable 4.2 · European AI Championship Paris 2026</span><span>9 / 9</span></div></section><div id="prog"></div></div>
+<div id="hint">← → to navigate · F for full screen</div>
+<script>
+const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')],prog=document.getElementById('prog');
+let cur=0;
+function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform=`translate(-50%,-50%) scale(${s})`}
+function count(el){const t=parseFloat(el.dataset.count),d=+(el.dataset.delay||0),dur=900;
+ clearInterval(el._iv);clearTimeout(el._t1);clearTimeout(el._t2);el.textContent='0.00';
+ const base=parseFloat(getComputedStyle(el.closest('.a')||el).getPropertyValue('--d')||0)*110+250+d;
+ el._t1=setTimeout(()=>{const st=Date.now();el._iv=setInterval(()=>{const p=Math.min((Date.now()-st)/dur,1),k=1-Math.pow(1-p,3);
+  el.textContent=(t*k).toFixed(2);if(p>=1)clearInterval(el._iv)},30)},base);
+ el._t2=setTimeout(()=>{clearInterval(el._iv);el.textContent=t.toFixed(2)},base+dur+150)}
+function show(i,first){i=Math.max(0,Math.min(slides.length-1,i));if(i===cur&&!first)return;cur=i;
+ slides.forEach((s,k)=>{s.classList.toggle('active',k===i);s.classList.toggle('before',k<i)});
+ prog.style.width=((i+1)/slides.length*100)+'%';
+ if(!matchMedia('(prefers-reduced-motion:reduce)').matches)slides[i].querySelectorAll('[data-count]').forEach(count);
+ history.replaceState(null,'','#'+(i+1))}
+addEventListener('keydown',e=>{const k=e.key;
+ if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(k)){e.preventDefault();show(cur+1)}
+ else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)){e.preventDefault();show(cur-1)}
+ else if(k==='Home')show(0);else if(k==='End')show(slides.length-1)
+ else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+ else if(/^[1-9]$/.test(k))show(+k-1)});
+addEventListener('click',e=>{e.clientX<innerWidth*0.25?show(cur-1):show(cur+1)});
+let tx=null;addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)show(cur+(dx<0?1:-1));tx=null});
+addEventListener('resize',fit);fit();
+show(Math.max(0,(parseInt(location.hash.slice(1))||1)-1),true);
+setTimeout(()=>document.getElementById('hint').style.opacity=0,6000);
+</script></body></html>
