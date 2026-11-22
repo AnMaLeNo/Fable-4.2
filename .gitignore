@@ -1,0 +1,18 @@
+# never commit credentials, data, weights or build environments
+.env
+*.env
+.build/
+__pycache__/
+*.pyc
+*.pt
+*.pth
+*.npz
+*.npy
+*.pkl
+*.jsonl
+*.onnx
+release/
+models/
+runs/
+preds/
+data/

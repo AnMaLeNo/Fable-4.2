@@ -1,0 +1,27 @@
+"""Candidate question pool for the phase-3 questionnaires (answers in one word)."""
+import random
+CATS = """animal;color;fruit;city;country;boy's first name;girl's first name;day of the week;month;planet;sport;musical instrument;vegetable;car brand;programming language;chemical element;flower;famous painter;famous scientist;river;ocean;metal;bird;tree;job;kitchen tool;piece of furniture;emotion;shape;language;fish;insect;dog breed;mountain;continent;US state;European capital;famous writer;famous composer;movie genre;board game;drink;dessert;spice;cheese;gemstone;weather phenomenon;body part;school subject;hobby;tool;toy;clothing item;currency;Greek god;superhero;zodiac sign;season;dance;vehicle;pasta shape;type of bread;breakfast food;pizza topping;ice cream flavor;soup;sandwich filling;berry;nut;herb;root vegetable;citrus fruit;tropical fruit;farm animal;sea creature;reptile;wild cat;rodent;primate;bird of prey;dinosaur;mythical creature;fairy tale character;cartoon character;video game;card game;Olympic sport;water sport;winter sport;martial art;ball game;string instrument;wind instrument;music genre;famous band;famous singer;famous actor;famous athlete;famous philosopher;famous explorer;famous inventor;Roman god;Norse god;Shakespeare play;famous novel;famous painting;famous building;famous bridge;famous museum;African country;Asian country;South American country;island;desert;lake;sea;volcano;waterfall;Asian capital;Italian city;French city;German city;Spanish city;Japanese city;Canadian province;Australian city;British city;Indian city;type of cloud;type of rock;type of tree leaf;type of fabric;type of shoe;type of hat;type of bag;piece of jewelry;hair color;eye color;room in a house;household appliance;office supply;garden tool;cleaning tool;kitchen appliance;type of knife;cooking method;type of tea;type of coffee;cocktail;soft drink;fruit juice;type of wine;type of beer;fast food;street food;candy;cookie;cake;pie;school supply;science;branch of mathematics;unit of length;unit of time;geometric solid;prime number;even number;odd number;Roman numeral;Greek letter;punctuation mark;part of speech;verb;adjective;adverb;preposition;pronoun;university subject;medical specialty;bone;organ;muscle;vitamin;disease;medicine;mineral;gas;liquid;planet moon;constellation;star;galaxy;space mission;means of transport;aircraft;boat type;train type;car color;road sign;traffic light color;bank note value;coin;playing card;chess piece;dice number;tarot card;magic spell word;pirate word;robot name;pet name;ship name;street name;company name;brand of phone;social network;web browser;operating system;keyboard key;file extension;computer part;data type;sorting algorithm;database""".replace("\n", "").split(";")
+PAIRS = """Up/down;Black/white;Hot/cold;Sweet/salty;Morning/evening;City/countryside;Book/movie;Sun/moon;Fire/water;Gold/silver;Circle/square;Apple/orange;Pen/pencil;Rain/snow;Fast/slow;Big/small;Early/late;Open/closed;In/out;Win/lose;Past/future;Head/heart;Land/sea;Paper/plastic;Push/pull;Salt/pepper;Bus/train;Lion/tiger;Rose/tulip;Piano/guitar;Monday/Friday;Seven/eight;A/B;X/Y;One/two;First/last;Alpha/omega;Truth/dare;Stop/go;On/off;Odd/even;Tails/heads;Dogs/cats;Coffee/tea;Winter/summer;Night/day;Beach/mountains;Blue/red;No/yes;False/true;Right/left;West/east;South/north;Green/yellow;Bread/rice;Spring/autumn;Plus/minus;Top/bottom;Front/back;Old/new;Long/short;Light/dark;Soft/hard;Wet/dry;Rich/famous;Car/bike;Email/phone;Chess/checkers;Football/basketball;Violin/drums;January/July;Three/four;C/D;P/Q;Nine/ten;Start/finish;Inside/outside;Laugh/cry;Give/take;Always/never;Wood/stone;Milk/juice;Fork/spoon;Door/window;River/lake;Wolf/fox;Oak/pine;Cotton/wool;Butter/jam;Pizza/pasta;Tennis/golf;Mars/Venus;Paris/Rome;Tokyo/Seoul;Lemon/lime;Eagle/owl;Shark/whale;Knife/scissors;Hat/scarf;Bridge/tunnel""".replace("\n", "").split(";")
+def pool(seed=0):
+    q = []
+    for c in CATS:
+        art = "an" if c[0].lower() in "aeiou" else "a"
+        q.append(f"Name {art} {c}.")
+    for p in PAIRS:
+        a, b = p.split("/"); q.append(f"{a} or {b.lower() if len(b) > 1 else b}?")
+    for L in "ABCDEFGHIJKLMNOPRSTW": q.append(f"Give a word that starts with {L}.")
+    for a, b in [(1, 10), (1, 20), (1, 50), (1, 100), (10, 99), (100, 999), (1, 6), (0, 9), (1, 1000), (20, 30), (50, 60), (1, 12), (1, 31), (1900, 2000), (2, 9)]:
+        q.append(f"Pick a number between {a} and {b}.")
+    for w in ["cat", "blue", "tree", "light", "day", "star", "sea", "book", "road", "song", "gold", "rain", "king", "bell", "fire"]:
+        q.append(f"Give a word that rhymes with {w}.")
+    for pl in ["kitchen", "garden", "school", "hospital", "beach", "forest", "office", "farm", "airport", "museum", "bathroom", "garage", "library", "supermarket", "zoo"]:
+        q.append(f"Name something found in a {pl}.")
+    for w in ["happy", "big", "fast", "cold", "old", "smart", "quiet", "bright", "strong", "small"]:
+        q.append(f"Give a synonym of {w}."); q.append(f"Give the opposite of {w}.")
+    q = list(dict.fromkeys(q)); random.Random(seed).shuffle(q); return q
+def qprompt(qs):
+    lines = "\n".join(f"{i+1}. {x}" for i, x in enumerate(qs))
+    return (f"Answer each of the following {len(qs)} questions with a single word or number. "
+            f"Write only the numbered answers, one per line, in the format '1. answer'. No explanations.\n\n{lines}")
+if __name__ == "__main__":
+    print(len(pool()), pool()[:6])
