@@ -56,7 +56,7 @@ README.md                         this page
 task1_watermark_localization/     code + README (pipeline with file / function pointers, commands, results, negative results)
 task2_model_equality/             idem
 task3_unlearning/                 idem
-slides/                           presentation (.pptx and .pdf), the script that builds it
+slides/                           presentation given at the pitch (PDF), plus an earlier generated draft (.pptx/.pdf) and its build script
 ```
 
 Each task folder holds copies of the scripts that produce the final solution; `experiments/` sub-folders hold the
@@ -101,5 +101,5 @@ repository; the scripts read `SERVER_URL` and `API_KEY` from the environment.
 
 ## Slides
 
-[slides/Fable4.2_slides.pptx](slides/Fable4.2_slides.pptx) · [slides/Fable4.2_slides.pdf](slides/Fable4.2_slides.pdf)
+**[slides/Fable4.2_presentation.pdf](slides/Fable4.2_presentation.pdf)** (the deck used for the pitch) · earlier generated draft: [slides/Fable4.2_slides.pptx](slides/Fable4.2_slides.pptx) · [slides/Fable4.2_slides.pdf](slides/Fable4.2_slides.pdf)
 (6 minutes, about 2 minutes per task).
