@@ -6,7 +6,7 @@ change the identity. Score = 0.1 × MCC(family) + 0.9 × MCC(model). Hard budget
 team, 256 generated tokens per answer; nine practice endpoints `ref-01` … `ref-09` with known labels and no budget limit.
 
 **Public score: 1.00** (reached 21 Nov, 22:31; every later configuration listed below also scores 1.00 on the public
-pairs). <!-- TODO-FINAL: final public score, and which submitted configuration we consider our answer -->
+pairs). The configuration we consider the most probable is `subs/k01_H7.csv`. <!-- TODO-FINAL: re-read the score at 11:30 -->
 
 ## Idea
 
@@ -99,18 +99,17 @@ Public score by submission:
 | 21:30 | sub04 | 0.85 | local replicas: temperature endpoints merged (14, 07, 27, 30), 28 removed from the base group |
 | 22:31 | `subs/p01_B32.csv` | **1.00** | ep-32 added to the base group of B |
 | 01:34 | `subs/k01_H7.csv` | 1.00 | most probable full configuration: 7 "base" endpoints per family (A + 01 + 12, B + 21, C + 19) |
-| TODO-FINAL | TODO-FINAL | TODO-FINAL | final answer (file) and its public score |
 
 Budget actually used on the scored endpoints (server counters, out of 100): 71 on ep-01, 70 on ep-12, 68 on ep-19,
 67 on ep-13, 65 on ep-09; 56–59 on 17, 18, 24, 25, 33; 47–48 on 03, 05, 11, 21, 22, 26, 30, 32; 35–41 on the others.
 This includes 7 to 12 short answers per endpoint collected separately by a team member in the first hours.
-<!-- TODO-FINAL: update the budget line if more answers are collected before noon -->
 
 ## What did not work, and what is not resolved
 
 - The public score takes very few values (0.10 / 0.40 / 0.75 / 0.80 / 0.85 / 1.00): few pairs are public. Since 22:31
   every plausible configuration scores 1.00 publicly, so the public score can no longer confirm a correct merge; it can
-  only refute a wrong one (ep-25 in the base group of A: 1.00 → 0.80; ep-26 in place of ep-21 in B: 1.00 → 0.80).
+  only refute a wrong one (ep-25 in the base group of A: 1.00 → 0.80; ep-26 in place of ep-21 in B, or next to it:
+  1.00 → 0.80). Removing 14, 27 or 07 from their base group leaves 1.00: these pairs are not public either.
 - **Unresolved**: whether 01 and 12 (A), 21 (B) and 19 (C) belong to the base group. With 22 answers each to the
   offline-designed questionnaire, 01 and 12 stay indistinguishable from the base replica (χ²/dof 0.82 and 0.72).
   For 19 the indicators are intermediate between the base and a weakly modified model; the "odd/even" anomaly that

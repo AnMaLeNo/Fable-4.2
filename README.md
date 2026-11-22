@@ -3,17 +3,19 @@
 Code, write-up and slides of team **Fable 4.2** for the 24-hour hackathon organised by CISPA / SprintML
 (Paris, 21–22 November 2026): three tasks on the security and privacy of machine-learning models.
 
-> **TODO-FINAL** — this page was prepared at 07:35 on 22 November, while the three task agents were still working.
-> Every number or file name that must be refreshed before the repository goes public is marked `TODO-FINAL`
-> and listed in [TODO-FINAL.md](TODO-FINAL.md).
+> **TODO-FINAL** — this page was last updated at 09:45 on 22 November, while the three task agents were still working.
+> What remains to be refreshed before the repository goes public is listed in [TODO-FINAL.md](TODO-FINAL.md).
 
 ## Scores (public leaderboard; the final ranking uses a hidden split)
 
-| Task | Metric | Baseline (public) | Our public score at 07:25, 22 Nov | **Final** |
+| Task | Metric | Baseline (public) | Our best public score, 22 Nov, 09:40 | **Final** |
 |---|---|---|---|---|
-| 1. Watermark localisation (images) | mean IoU | 0.2553 (all zeros) | 0.7705 | **TODO-FINAL** |
+| 1. Watermark localisation (images) | mean IoU | 0.2553 (all zeros) | 0.7965 (09:37) | **TODO-FINAL** |
 | 2. Model equality testing (LLM endpoints) | 0.1 × MCC family + 0.9 × MCC model | 0.10 (our first submission: families only) | 1.00 | **TODO-FINAL** |
-| 3. Unlearning (ViT-B/16) | forget score × retain score | 0.0 (unchanged model) | 0.4038 | **TODO-FINAL** |
+| 3. Unlearning (ViT-B/16) | forget score × retain score | 0.0 (unchanged model) | 0.4162 (09:38, single run; stable plateau 0.4013–0.4038) | **TODO-FINAL** |
+
+Overall public ranking at 09:25: 4th of 44 teams, normalised score 0.92 (mean over the three tasks of the score
+rescaled between the worst and the best team). <!-- TODO-FINAL: re-read the ranking -->
 
 ## The three solutions in one page
 
@@ -25,6 +27,8 @@ TrustMark the encoder is the pretrained watermark extractor itself. Three additi
 reproduced it in training (a model trained with no real image goes from 0.07 to 0.83 mIoU on real fully watermarked
 StegaStamp images); (2) rectangles are located by decoding crops against the known message and accepted only when the
 bit accuracy is at least 0.85; (3) object-shaped predictions are snapped onto Segment Anything masks.
+The final ensemble is three long trainings per method with test-time translation averaging, all trained without
+pseudo-labels of the test set (the variant with pseudo-labels memorised its teacher and was discarded).
 Entry point: `task1_watermark_localization/assemble.sh`.
 
 **Task 2 — Model equality testing** → [task2_model_equality/](task2_model_equality/README.md)
@@ -43,7 +47,8 @@ image predict?". Four families of proxy models answer (out-of-fold probes on fro
 img2img variations, students distilled on generated images only, the same architecture with its last blocks reset);
 their consensus gives a difficulty rank and a wrong-class distribution, mapped onto the loss distribution of a
 non-memorising model. The model is distilled onto these targets and anchored to itself on generated look-alike images.
-Capping the true-class confidence on the images left correct brought the last step (0.3724 → 0.4038).
+Capping the true-class confidence on the images left correct brought 0.3724 → 0.4038; a fifth, weaker signal
+(the original model after magnitude pruning) gave 0.4162 in a single run.
 Entry points: `task3_unlearning/targets.py`, `make_cap.py`, `train_v3.py`.
 
 ## Repository layout

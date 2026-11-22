@@ -11,8 +11,18 @@ from wmloc.utils import miou_image
 
 AMP = torch.float16
 
+TTA = []   # list of (dy, dx) translations in px (multiples of 4); the logits of the shifted views are moved back and averaged
+
+def _shifted(img, dy, dx):
+    p = np.pad(img, ((16, 16), (16, 16), (0, 0)), mode='reflect'); return p[16 - dy:16 - dy + 512, 16 - dx:16 - dx + 512]
+
+def _unshift(l, dy, dx, base):
+    cy, cx = dy // 4, dx // 4; out = base.copy(); H = 128
+    ys = slice(max(0, cy), H + min(0, cy)); xs = slice(max(0, cx), H + min(0, cx)); yd = slice(max(0, -cy), H + min(0, -cy)); xd = slice(max(0, -cx), H + min(0, -cx))
+    out[yd, xd] = l[ys, xs]; return out
+
 @torch.no_grad()
-def run(models, imgs, mi, dev, bs=8):
+def _run1(models, imgs, mi, dev, bs=8):
     out = []
     for i in range(0, len(imgs), bs):
         x = torch.from_numpy(np.stack(imgs[i:i + bs])).to(dev).permute(0, 3, 1, 2).float().div(255).contiguous(memory_format=torch.channels_last)
@@ -23,12 +33,22 @@ def run(models, imgs, mi, dev, bs=8):
         out.append((acc / len(models)).cpu().numpy())   # mean logit
     return np.concatenate(out)
 
+def run(models, imgs, mi, dev, bs=8):
+    base = _run1(models, imgs, mi, dev, bs)
+    if not TTA or len(imgs) == 0: return base
+    acc = [base]
+    for dy, dx in TTA:
+        l = _run1(models, [_shifted(np.asarray(i), dy, dx) for i in imgs], mi, dev, bs); acc.append(np.stack([_unshift(l[k], dy, dx, base[k]) for k in range(len(imgs))]))
+    return np.mean(acc, 0)
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--data', default='release'); ap.add_argument('--out', required=True); ap.add_argument('--bs', type=int, default=4); ap.add_argument('--all', action='store_true', help='predict all 510 real train images (for synthetic-only models)'); ap.add_argument('--amp', default='fp16'); ap.add_argument('--fold', type=int, default=-1)
+    ap = argparse.ArgumentParser(); ap.add_argument('--data', default='release'); ap.add_argument('--out', required=True); ap.add_argument('--tta', action='store_true', help='average 9 translated views'); ap.add_argument('--tta2', action='store_true', help='average 25 translated views (shifts of -12..12 px)'); ap.add_argument('--bs', type=int, default=4); ap.add_argument('--all', action='store_true', help='predict all 510 real train images (for synthetic-only models)'); ap.add_argument('--amp', default='fp16'); ap.add_argument('--fold', type=int, default=-1)
     for i in range(3): ap.add_argument(f'--m{i}', default='')
     a = ap.parse_args(); dev = 'cuda'; out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    global AMP
+    global AMP, TTA
     if a.amp == 'bf16': AMP = torch.bfloat16
+    if a.tta: TTA = [(8, 0), (0, 8), (-8, 0), (0, -8), (8, 8), (-8, -8), (4, -4), (-4, 4)]
+    if a.tta2: TTA = [(dy, dx) for dy in (-12, -4, 0, 4, 12) for dx in (-12, -4, 0, 4, 12) if (dy, dx) != (0, 0)] + [(8, 8), (-8, -8), (8, -8), (-8, 8)]
     val = load_real(a.data, None if a.all else True, a.fold)
     meta = json.loads((Path(a.data) / 'test/metadata.json').read_text())
     lv = np.zeros((len(val), 128, 128), np.float32); lt = np.zeros((len(meta), 128, 128), np.float32)

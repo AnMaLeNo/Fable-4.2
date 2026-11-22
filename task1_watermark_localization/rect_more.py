@@ -9,7 +9,10 @@ from rect_pipe import proposals, dense_refine
 args = [a for a in sys.argv[1:] if not a.startswith('--')]; sh = [a for a in sys.argv[1:] if a.startswith('--shard=')]; si, sn = map(int, sh[0][8:].split('/')) if sh else (0, 1)
 known = set()
 for f in [f for f in args[0].split(',') if f != 'none']: known |= {d['name'] for d in np.load(f, allow_pickle=True) if d['acc'] is not None and d['acc'] >= 0.85}
-AF = json.load(open('afull.json')); meta = [x for x in json.load(open('release/test/metadata.json')) if x['method'] == METHOD and AF[f'test_{x["image_name"]}'] < 0.7 and x['image_name'] not in known][si::sn]
+AF = json.load(open('afull.json')); SUSP = json.load(open('suspicious.json')) if os.environ.get('SUSP') else {}
+if os.environ.get('SUSP') == 'only': AF = {k: (0.0 if k in SUSP else 1.0) for k in AF}
+elif SUSP: AF = {k: (0.0 if k in SUSP else v) for k, v in AF.items()}
+meta = [x for x in json.load(open('release/test/metadata.json')) if x['method'] == METHOD and AF[f'test_{x["image_name"]}'] < 0.7 and x['image_name'] not in known][si::sn]
 P = [dict(zip([str(n) for n in z['names']], z['logits'])) for z in (np.load(f'{d}/test.npz', allow_pickle=True) for d in args[2:])]
 def iou(p, q):
     iy = max(0, min(p[2], q[2]) - max(p[0], q[0])); ix = max(0, min(p[3], q[3]) - max(p[1], q[1])); i = iy * ix

@@ -1,24 +1,24 @@
 # Notes de l'orateur — Fable 4.2 (6 minutes, 9 diapositives)
 
-Mode d'emploi : le texte en retrait (« À dire ») se lit tel quel, à voix posée. Il fait 887 mots, soit environ
-5 min 55 à 150 mots par minute : c'est juste. Si le chronomètre dérive, sauter la dernière phrase des diapositives 3, 5
+Mode d'emploi : le texte en retrait (« À dire ») se lit tel quel, à voix posée. Il fait 894 mots, soit environ
+5 min 58 à 150 mots par minute : c'est juste. Si le chronomètre dérive, sauter la dernière phrase des diapositives 3, 5
 et 7 (on gagne environ 25 secondes). Les lignes « Pour comprendre » ne se lisent pas : elles expliquent les mots
 techniques au cas où le jury pose une question.
 
-**Chiffres à vérifier à 11h45** : tous les scores cités viennent du classement public de 07h25
-(0,7705 · 1,00 · 0,4038). Chaque passage concerné est signalé par `TODO-FINAL`.
+**Chiffres à vérifier à 11h30** : les scores cités ont été lus à 09h40 dans les journaux de soumission
+(0,7965 · 1,00 · 0,4162) et le rang à 09h25 (4es sur 44). Chaque passage concerné est signalé par `TODO-FINAL`.
 
 | Diapositive | Durée | Temps cumulé |
 |---|---|---|
 | 1. Titre | 0 min 20 | 0 min 20 |
 | 2. Vue d'ensemble | 0 min 36 | 0 min 56 |
-| 3. Tâche 1, l'idée | 0 min 46 | 1 min 42 |
-| 4. Tâche 1, ce qui a fait la différence | 0 min 39 | 2 min 21 |
-| 5. Tâche 2, l'idée | 0 min 43 | 3 min 04 |
-| 6. Tâche 2, le résultat | 0 min 41 | 3 min 45 |
-| 7. Tâche 3, l'idée | 0 min 46 | 4 min 31 |
-| 8. Tâche 3, ce qui a fait la différence | 0 min 40 | 5 min 11 |
-| 9. Conclusion | 0 min 45 | 5 min 56 |
+| 3. Tâche 1, l'idée | 0 min 45 | 1 min 41 |
+| 4. Tâche 1, ce qui a fait la différence | 0 min 44 | 2 min 25 |
+| 5. Tâche 2, l'idée | 0 min 43 | 3 min 08 |
+| 6. Tâche 2, le résultat | 0 min 41 | 3 min 49 |
+| 7. Tâche 3, l'idée | 0 min 44 | 4 min 33 |
+| 8. Tâche 3, ce qui a fait la différence | 0 min 40 | 5 min 13 |
+| 9. Conclusion | 0 min 45 | 5 min 58 |
 
 ---
 
@@ -27,10 +27,10 @@ techniques au cas où le jury pose une question.
 À dire :
 
 > Bonjour, nous sommes l'équipe Fable 4.2. En vingt-quatre heures, nous avons traité les trois tâches. Nos scores
-> publics de ce matin : 0,77 sur la localisation de watermark, 1,00 sur l'égalité de modèles, 0,40 sur le
-> désapprentissage. Je vous montre comment nous y sommes arrivés, deux minutes par tâche.
+> publics de ce matin : 0,80 sur la localisation de watermark, 1,00 sur l'égalité de modèles, 0,42 sur le
+> désapprentissage, soit la quatrième place sur quarante-quatre équipes. Voici comment, deux minutes par tâche.
 
-`TODO-FINAL` : les trois scores (0,77 · 1,00 · 0,40).
+`TODO-FINAL` : les trois scores (0,7965 · 1,00 · 0,4162, lus à 09h40) et le rang (4es sur 44 à 09h25).
 
 ## 2. Vue d'ensemble (35 secondes)
 
@@ -51,30 +51,33 @@ des calculs, soumet). L'orchestrateur ne résout pas les tâches, il coordonne l
 
 > Tâche 1. On reçoit une image retouchée, la méthode de watermark et le message caché ; il faut dessiner la zone
 > encore tatouée. Nous avons trouvé trois types de retouche, et un outil pour chacun. Si toute l'image est tatouée,
-> avec un trou : un réseau de segmentation, entraîné sur des images synthétiques que nous fabriquons avec les outils
-> fournis. Si seul un rectangle est tatoué : on décode des morceaux de l'image, et quand on retrouve le message
-> connu avec au moins 85 % des bits justes, on tient le rectangle exact. Si le watermark ne reste que sur un objet :
-> on recale la prédiction sur les contours d'objets donnés par Segment Anything.
+> avec un trou : un réseau de segmentation, entraîné sur des images synthétiques fabriquées avec les outils fournis.
+> Si seul un rectangle est tatoué : on décode des morceaux de l'image, et quand on retrouve le message connu avec au
+> moins 85 % des bits justes, on tient le rectangle exact. Si le watermark ne reste que sur un objet : on recale la
+> prédiction sur les contours donnés par Segment Anything.
 
 Pour comprendre : « segmentation » = le réseau colorie les pixels tatoués. « Décoder » = relire le message caché dans
 un morceau d'image ; cela ne marche bien que si le morceau est exactement le rectangle tatoué, ce qui le localise.
 Segment Anything (SAM) est un modèle public qui découpe les objets d'une image.
 
-## 4. Tâche 1, ce qui a fait la différence (40 secondes)
+## 4. Tâche 1, ce qui a fait la différence (45 secondes)
 
 À dire :
 
 > Ce qui a fait la différence, c'est une découverte sur les données. Les vraies images ont été légèrement agrandies,
 > de zéro à sept pour cent, puis recadrées, après la pose du watermark. Un modèle entraîné sur nos images
-> synthétiques propres ne voyait donc presque rien dans les vraies : 0,07. Avec le même zoom appliqué à nos images
-> d'entraînement, il monte à 0,83, sans aucune image réelle étiquetée. Le tableau montre la progression : 0,66 avec
-> les premiers réseaux, puis les rectangles trouvés par décodage, le recalage sur les objets, des entraînements plus
-> longs, pour arriver à 0,7705.
+> synthétiques propres ne voyait donc presque rien dans les vraies : 0,07. Avec le même zoom à l'entraînement, il
+> monte à 0,83, sans aucune image réelle étiquetée. Ensuite : les rectangles trouvés par décodage, le recalage sur les
+> objets, puis trois entraînements longs par méthode, pour arriver à 0,7965. Ces modèles n'utilisent aucune étiquette
+> devinée sur le jeu de test : cet essai a été écarté, le modèle y recopiait son professeur.
 
-`TODO-FINAL` : le score final (0,7705) et la dernière ligne du tableau.
+`TODO-FINAL` : le score final (0,7965, lu à 09h37).
 
 Pour comprendre : 0,07 et 0,83 sont des scores (IoU moyen) mesurés chez nous sur de vraies images StegaStamp
 entièrement tatouées, par un modèle qui n'a vu aucune image réelle. Les scores du tableau sont ceux du classement public.
+« Étiquettes devinées » (pseudo-labels) : on fait étiqueter les images de test par un premier modèle, puis on entraîne
+un second modèle dessus. En entraînement long, ce second modèle recopie le premier au lieu d'apprendre : nous l'avons
+retiré, et les neuf modèles de la solution finale sont entraînés sans.
 
 ## 5. Tâche 2, l'idée (45 secondes)
 
@@ -118,9 +121,8 @@ les lectures plausibles, de la plus probable à la moins probable.
 > score compare les prédictions image par image. D'où notre question : que répondrait un modèle qui n'a jamais vu
 > cette image ? Pour le deviner, nous interrogeons quatre familles de modèles de substitution : des classifieurs
 > simples sur des réseaux pré-entraînés, le modèle d'origine sur des variantes régénérées de l'image, des élèves
-> entraînés seulement sur des images générées, et le même réseau aux dernières couches remises à zéro. Leur
-> consensus donne une cible pour chaque image. Il reste à ajuster le modèle vers ces cibles, en le gardant inchangé
-> sur des images ressemblantes.
+> entraînés sur des images générées, et le même réseau aux dernières couches remises à zéro. Leur consensus donne une
+> cible par image. Il reste à ajuster le modèle vers ces cibles, en le gardant inchangé ailleurs.
 
 Pour comprendre : le modèle d'origine connaît par cœur les 3 500 images (100 % de bonnes réponses). Un modèle qui ne
 les a jamais vues se trompe sur une partie d'entre elles : nos cibles reproduisent ces erreurs (environ 45 % des images
@@ -132,17 +134,18 @@ générées par un modèle de diffusion ; elles servent à vérifier que le rest
 À dire :
 
 > Chaque source d'information indépendante a ajouté du score : 0,15 au départ, 0,23 avec la première famille, 0,29
-> avec deux, 0,35 avec trois, 0,36 avec quatre. Comme le serveur ne renvoie qu'un seul nombre, nous n'avons changé
-> qu'un réglage par soumission ; le tableau de droite montre les courbes obtenues. Le dernier gain, de 0,37 à 0,40,
-> vient d'un second agent chargé de relire le travail du premier. Son constat : une moyenne de plusieurs modèles
-> réentraînés n'est jamais tout à fait sûre d'elle ; il faut donc plafonner aussi la confiance de notre modèle sur
-> les images faciles.
+> avec deux, 0,35 avec trois, 0,36 avec quatre. Le serveur ne renvoyant qu'un nombre, nous n'avons changé qu'un
+> réglage par soumission : c'est le tableau de droite. Le gain de 0,37 à 0,40 vient d'un second agent chargé de
+> relire le premier. Son constat : une moyenne de modèles réentraînés n'est jamais tout à fait sûre d'elle ; il faut
+> donc plafonner aussi la confiance de notre modèle. Ce matin, un cinquième signal nous amène à 0,42, sur une seule
+> soumission pour l'instant.
 
-`TODO-FINAL` : le score final (0,40, soit 0,4038) et la dernière barre du graphique.
+`TODO-FINAL` : le score final (0,4162, lu à 09h38 ; une seule soumission, le palier confirmé est 0,4013 à 0,4038).
 
 Pour comprendre : dans le tableau, « loss level » règle à quel point le modèle doit hésiter ou se tromper sur les
 images à oublier (le mieux : ×2,0) ; « images wrong » est la part d'images auxquelles on demande une mauvaise réponse
-(le mieux : 45 %). Ce qui n'a pas aidé : un modèle statistique de la référence ajusté sur nos scores passés (il
+(le mieux : 45 %). Le « cinquième signal » est le modèle d'origine dont on a supprimé une partie des poids (élagage) :
+ce qu'il oublie en premier ressemble à ce qu'il n'avait fait que mémoriser. Ce qui n'a pas aidé : un modèle statistique de la référence ajusté sur nos scores passés (il
 annonçait +12 %, le score a baissé de 0,3533 à 0,3010), les moyennes de poids, un ancrage plus fort.
 
 ## 9. Conclusion (45 secondes)

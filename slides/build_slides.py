@@ -20,10 +20,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ----------------------------------------------------------------------------------------------------------- NUMBERS
 FINAL = False                                   # TODO-FINAL: set to True once the numbers below are final
-AS_OF = "Public leaderboard, 22 Nov, 07:25"     # TODO-FINAL: time of the final reading
-T1_SCORE = "0.7705"                             # TODO-FINAL: task 1 public mIoU
+AS_OF = "Public leaderboard, 22 Nov, 09:40"     # TODO-FINAL: time of the final reading
+T1_SCORE = "0.7965"                             # TODO-FINAL: task 1 public mIoU
 T2_SCORE = "1.00"                               # TODO-FINAL: task 2 public score
-T3_SCORE = "0.4038"                             # TODO-FINAL: task 3 public score
+T3_SCORE = "0.4162"                             # TODO-FINAL: task 3 public score
+RANK = "Overall: 4th of 44 teams, normalised score 0.92 (09:25)"   # TODO-FINAL: overall public ranking ("" hides the line)
 T1_LADDER = [                                   # (step, public mIoU, gain)   TODO-FINAL: add or replace the last row
     ("All-zeros baseline", "0.2553", ""),
     ("Segmenters on synthetic composites", "0.6608", "+0.406"),
@@ -31,8 +32,10 @@ T1_LADDER = [                                   # (step, public mIoU, gain)   TO
     ("Zoom-trained models, routed by type", "0.7292", "+0.012"),
     ("Rectangles located by decoding", "0.7418", "+0.013"),
     ("Object predictions snapped on SAM masks", "0.7474", "+0.006"),
-    ("Longer training, same recipe", "0.7614", "+0.014"),
-    ("Denser SAM proposals, full-type shift", "0.7705", "+0.009"),
+    ("Long TrustMark and PixelSeal models", "0.7614", "+0.014"),
+    ("SAM ViT-H proposals, threshold on full frames", "0.7705", "+0.009"),
+    ("Long StegaStamp models, test-time augmentation", "0.7891", "+0.019"),
+    ("Three long models per method, nothing else", "0.7965", "+0.007"),
 ]
 T2_LADDER = [                                   # (step, public score)
     ("Families only", 0.10),
@@ -49,6 +52,7 @@ T3_LADDER = [                                   # (step, public score)   TODO-FI
     ("+ reset-and-redistil replicas (R)", 0.3641),
     ("Near-identity training views", 0.3724),
     ("Confidence cap on easy images", 0.4038),
+    ("+ pruning signal (one run so far)", 0.4162),
 ]
 # ------------------------------------------------------------------------------------------------------------- STYLE
 W, H = 13.333, 7.5
@@ -206,10 +210,11 @@ d.text(0.6, 3.05, 10.5, 0.9, "Three security and privacy tasks in 24 hours,\nwor
 for i, (n, sc, lab) in enumerate([(1, T1_SCORE, "Watermark localisation · mean IoU"), (2, T2_SCORE, "Model equality testing · MCC score"),
                                   (3, T3_SCORE, "Unlearning · forget × retain")]):
     x = 0.6 + i * 4.1
-    d.rect(x, 4.75, 3.8, 1.75, "262A3B", 0.08)
-    d.badge(x + 0.25, 4.98, n)
-    d.text(x + 1.1, 4.9, 2.6, 0.8, sc, 44, True, PAPER, "l", "m")
-    d.text(x + 0.25, 5.85, 3.4, 0.45, lab, 14, False, SOFT, "l", "m")
+    d.rect(x, 4.45, 3.8, 1.75, "262A3B", 0.08)
+    d.badge(x + 0.25, 4.68, n)
+    d.text(x + 1.1, 4.6, 2.6, 0.8, sc, 44, True, PAPER, "l", "m")
+    d.text(x + 0.25, 5.55, 3.4, 0.45, lab, 14, False, SOFT, "l", "m")
+if RANK: d.text(0.6, 6.42, 9.0, 0.3, RANK, 15, True, GOLD)
 d.footer(AS_OF)
 
 # --------------------------------------------------------------------------------------------------- 2. overview
@@ -262,9 +267,9 @@ d.text(0.9, 3.55, 4.4, 0.9, "A model trained on clean kit embeddings sees almost
 d.text(0.9, 4.45, 4.4, 0.3, "StegaStamp, trained with no real image, full frames:", 12, False, SOFT)
 d.text(0.9, 4.78, 1.6, 0.8, "0.07", 40, True, SOFT, "l", "m"); d.text(2.4, 4.78, 0.7, 0.8, "→", 30, True, GOLD, "c", "m"); d.text(3.1, 4.78, 1.8, 0.8, "0.83", 40, True, GOLD, "l", "m")
 d.text(0.9, 5.65, 4.4, 0.75, "mIoU on real images, without and with the same zoom applied to the synthetic training data", 12, False, SOFT)
-d.table(6.0, 1.45, [4.2, 1.55, 1.0], [("Step", "Public mIoU", "Gain")] + T1_LADDER, row_h=0.5, size=13.5,
+d.table(6.0, 1.45, [4.45, 1.4, 0.9], [("Step", "Public mIoU", "Gain")] + T1_LADDER, row_h=0.405, size=13,
         aligns=["l", "r", "r"], hi=len(T1_LADDER))
-d.text(6.0, 6.03, 6.75, 0.5, "Did not help: matched filter on the expected residual, pseudo-labels of the test set in long training.", 12.5, False, MUTED)
+d.text(6.0, 6.0, 6.75, 0.5, "Long models are trained without pseudo-labels of the test set: that variant memorised its teacher and was discarded.", 12.5, True, C1)
 d.footer(AS_OF)
 
 # -------------------------------------------------------------------------------------------------- 5. task 2 idea
@@ -332,8 +337,8 @@ d.footer()
 d.slide("Task 3 · Each independent proxy family added score")
 d.badge(12.1, 0.45, 3)
 d.text(0.6, 1.35, 7.0, 0.3, "PUBLIC SCORE BY SUBMISSION", 12, True, MUTED)
-d.bars(0.6, 1.75, 7.2, T3_LADDER, C3, label_w=3.9, row_h=0.56, size=13.5, vmax=0.45, fmt="{:.4f}")
-d.text(0.6, 5.8, 7.2, 0.7, "Last step from a second agent reviewing the first: an average of retrained models is never fully sure, so cap our confidence too.", 13, False, TEXT)
+d.bars(0.6, 1.75, 7.2, T3_LADDER, C3, label_w=3.9, row_h=0.5, size=13.5, vmax=0.45, fmt="{:.4f}")
+d.text(0.6, 5.9, 7.2, 0.7, "The cap came from a second agent reviewing the first: an average of retrained models is never fully sure, so cap our confidence too.", 13, False, TEXT)
 d.text(8.2, 1.35, 4.5, 0.3, "ONE CHANGE PER SUBMISSION", 12, True, MUTED)
 d.table(8.2, 1.75, [2.55, 1.98], [("Setting tested", "Public score"), ("Loss level ×1.5", "0.2907"), ("Loss level ×2.0", "0.3122"), ("Loss level ×2.5", "0.2755"),
         ("35 % of images wrong", "0.2862"), ("45 % of images wrong", "0.3142"), ("55 % of images wrong", "0.3022")], row_h=0.44, size=13, aligns=["l", "r"], head_fill=C3)
