@@ -3,7 +3,7 @@
 For each 512×512 test image (one known watermark method among PixelSeal, TrustMark, StegaStamp, and the known embedded
 message), output a 128×128 binary mask of the watermarked area. Metric: per-image mIoU over the two classes, averaged.
 
-**Public score: 0.8013** (22 Nov, 10:59, submission `00_F_C21p.pt`; all-zeros baseline: 0.2553).
+**Public score: 0.8016** (22 Nov, 11:30, submission `00_I_C26.pt`; all-zeros baseline: 0.2553).
 
 ## Idea
 
@@ -95,13 +95,13 @@ METHOD=pixelseal python rect_more.py none preds/rectps_more_test.npy preds/<ense
 python make_rect_lists.py
 
 # final assembly: ensemble -> thresholds by type and method -> rectangles -> SAM snapping -> submission file
-SUSP=1 FULLSHIFT=2,1,0 PARTSHIFT=-1,0,0 KMAX=1 DELTA=-0.1,-0.1,-0.1 bash assemble.sh C21p objmasks2_all.npz -- $(cat members_c19.txt)
+SUSP=1 FULLSHIFT=2,1,0 PARTSHIFT=-1,0,0 KMAX=1 DELTA=-0.1,-0.1,-0.1 bash assemble.sh C26 objmasks2_all.npz -- $(cat members_c26.txt)
 python common.py subq/pending/00_C21p.pt
 ```
 
 What the best submission (score, file name and time on the first lines of this page) contains:
 
-- **Ensemble**: plain mean of the logits of twelve long models (`members_c19.txt`). TrustMark (5): `L_tm` (extractor
+- **Ensemble**: plain mean of the logits of ten long models (`members_c26.txt`; the best submission drops `Q_tm_104` and `Q_tm_105` from the twelve below, listed in `members_c19.txt`, which scored 0.8013). TrustMark (5): `L_tm` (extractor
   ResNet-50 + FPN on 3 scales, 20 000 steps), `Q_tm_102`, `Q_tm_103` (22 000), `Q_tm_104` (18 000), `Q_tm_105` (16 000).
   PixelSeal (4): `L_ps` (extractor ConvNeXtV2, 2 scales, 16 000 steps), `Q_ps_102`, `Q_ps_103` (18 000), `Q_ps_104`
   (15 000). StegaStamp (3): `Q_ss_101`, `Q_ss_102` (U-Net with high-pass channels, 30 000 steps), `SS_clean_loc`
@@ -148,7 +148,8 @@ StegaStamp rectangles.
 | 09:48 | C16_susp | 0.7968 | "suspicious" full-type images treated as partial |
 | 09:58 | C18s | 0.8001 | + a fourth long PixelSeal model and 9 more decoded rectangles |
 | 10:39 | C19_fsm | 0.8006 | threshold on full-type images set per method (two more long TrustMark models: neutral, 0.7999) |
-| 10:59 | C21p | **0.8013** | threshold −1 on partial PixelSeal images |
+| 10:59 | C21p | 0.8013 | threshold −1 on partial PixelSeal images |
+| 11:30 | C26 | **0.8016** | same, without the two last TrustMark seeds (10 models) |
 
 
 Measurements behind the main choices (local, on real training images the model never saw):

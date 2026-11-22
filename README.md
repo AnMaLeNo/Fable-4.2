@@ -7,7 +7,7 @@ Code, write-up and slides of team **Fable 4.2** for the 24-hour hackathon organi
 
 | Task | Metric | Baseline (public) | Our best public score (22 Nov, 11:20) |
 |---|---|---|---|
-| 1. Watermark localisation (images) | mean IoU | 0.2553 (all zeros) | **0.8013** (10:59) |
+| 1. Watermark localisation (images) | mean IoU | 0.2553 (all zeros) | **0.8016** (11:30) |
 | 2. Model equality testing (LLM endpoints) | 0.1 × MCC family + 0.9 × MCC model | 0.10 (our first submission: families only) | **1.00** |
 | 3. Unlearning (ViT-B/16) | forget score × retain score | 0.0 (unchanged model) | **0.4256** (10:38) |
 
